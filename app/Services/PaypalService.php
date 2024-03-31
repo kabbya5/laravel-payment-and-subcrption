@@ -39,7 +39,25 @@ class PaypalService{
         $orderLinks = collect($order->links);
 
         $approve = $orderLinks->where('rel','approve')->first();
+
+        session()->put('approvalId',$order->id);
         return redirect($approve->href);
+    }
+
+    public function handelApproval(){
+        if(session()->has('approvalId')){
+            $approvalId = session()->get('approvalId');
+            $payment = $this->capturePayment($approvalId);
+            $name = $payment->payer->name->given_name;
+            $payment = $payment->purchase_units[0]->payments->captures[0]->amount;
+            
+            $amount = $payment->value;
+            $currency = $payment->currency_code;
+
+            return redirect()->route('home')->withSucces(['Payment' => 'Thanks, '.$name . ' we received your '.$amount .' '. $currency . ' payment']);
+        }
+
+        return redirect()->route('home')->withErrors('We cannot capture the payment. Try again');
     }
 
     public function createOrder($value,$currency){

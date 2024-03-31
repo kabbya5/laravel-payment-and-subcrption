@@ -25,7 +25,8 @@ class PaymentController extends Controller{
     }
 
     public function approval(){
-        //
+        $paymentPalatForm = resolve(PaypalService::class);
+        return $paymentPalatForm->handelApproval();
     }
 
     public function cancle(){
