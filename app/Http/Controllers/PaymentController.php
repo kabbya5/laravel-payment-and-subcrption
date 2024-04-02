@@ -1,13 +1,17 @@
 <?php 
 namespace App\Http\Controllers;
 
+use App\Resolvers\PaymentPlatFormResolver;
 use Illuminate\Http\Request;
-use App\Services\PaypalService;
 class PaymentController extends Controller{
 
-    /**
-     * Store the payment data
-    */
+    protected $paymentPlatFormResolver;
+
+    public function  __construct(PaymentPlatFormResolver $paymentPlatFormResolver)
+    {
+        $this->middleware('auth');
+        $this->paymentPlatFormResolver = $paymentPlatFormResolver;
+    }
 
     public function store(Request $request){
         
@@ -18,18 +22,22 @@ class PaymentController extends Controller{
         ];
 
         $request->validate($rules);
-        $paymentPalatForm = resolve(PaypalService::class);
+        $paymentPalatForm = $this->paymentPlatFormResolver->resolveService($request->payment_plateform);
         
+        session()->put('paymentPlatFormId',$request->payment_plateform);
         return $paymentPalatForm->handelPayment($request);
         
     }
 
     public function approval(){
-        $paymentPalatForm = resolve(PaypalService::class);
-        return $paymentPalatForm->handelApproval();
+        if(session()->has('paymentPlatFormId')){
+            $paymentPalatForm = $this->paymentPlatFormResolver->resolveService(session()->get('paymentPlatFormId'));
+            return $paymentPalatForm->handelApproval();
+        }
+        return redirect()->route('home')->withErrors("Invalid payment platform !");
     }
 
-    public function cancle(){
-        //
+    public function cancelled(){
+        return redirect()->route('home')->withErrors("The payment has been cancelled");
     }
 }

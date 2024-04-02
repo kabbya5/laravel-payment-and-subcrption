@@ -26,7 +26,7 @@ Route::get('/payment',function(){
 Route::controller(PaymentController::class)->group(function(){
     Route::post('/payment/store','store')->name('payment.store');
     Route::get('/payment/approval','approval')->name('payment.approval');
-    Route::get('/payment/cancle','cancle')->name('payment.cancle');
+    Route::get('/payment/cancelled','cancelled')->name('payment.cancle');
 });
 
 
