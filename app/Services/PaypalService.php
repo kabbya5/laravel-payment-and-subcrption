@@ -111,6 +111,4 @@ class PaypalService{
          
         return 100;
     }
-
-
 }

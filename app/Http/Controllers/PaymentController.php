@@ -14,17 +14,20 @@ class PaymentController extends Controller{
     }
 
     public function store(Request $request){
-        
         $rules = [
             'value' => ['required','numeric', 'min:3'],
             'currency' => ['required','exists:currencies,iso'],
             'payment_plateform' => ['required','exists:payment_platforms,id']
         ];
 
+       
+
+
         $request->validate($rules);
         $paymentPalatForm = $this->paymentPlatFormResolver->resolveService($request->payment_plateform);
         
         session()->put('paymentPlatFormId',$request->payment_plateform);
+
         return $paymentPalatForm->handelPayment($request);
         
     }
@@ -39,5 +42,9 @@ class PaymentController extends Controller{
 
     public function cancelled(){
         return redirect()->route('home')->withErrors("The payment has been cancelled");
+    }
+
+    public function config(){
+        return config('services.stripe.key');
     }
 }

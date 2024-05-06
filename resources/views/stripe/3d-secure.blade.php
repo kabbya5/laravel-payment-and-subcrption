@@ -8,13 +8,8 @@
                 <div class="card-header">{{ __('Dashboard') }}</div>
 
                 <div class="card-body">
-                    @if (session('status'))
-                        <div class="alert alert-success" role="alert">
-                            {{ session('status') }}
-                        </div>
-                    @endif
-
-                    {{ __('You are ' .auth()->user()->name . 'logged in!') }}
+                    <p class="text-red-500"> {{isset($status) ' ' . $status .' ' . $client_secret}} </p>
+                    <p> You need to follow some steps with your bank to complete this payment. Let's go !</p>
                 </div>
             </div>
         </div>

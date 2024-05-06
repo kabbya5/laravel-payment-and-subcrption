@@ -28,5 +28,6 @@ Route::controller(PaymentController::class)->group(function(){
     Route::get('/payment/approval','approval')->name('payment.approval');
     Route::get('/payment/cancelled','cancelled')->name('payment.cancle');
 });
+Route::get('config',[PaymentController::class,'config']);
 
 
