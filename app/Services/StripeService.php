@@ -60,41 +60,39 @@ Class StripeService
     }
 
     public function confirmPayment($paymentIntentId){
-        
-
-        try{
-            return $this->makeRequest(
-                'POST',
-                "/v1/payment_intents/{$paymentIntentId}/confirm"
-            );
-        }catch(RequestException $e){
-            $body = $e->getResponse()->getBody()->getContents();
-            $error = $this->decodeResponse($body)->error;
-            
-          
-            $clientSecret = $error->payment_intent->client_secret;
-            $status = $error->code;
-
-
-            if($clientSecret && $status){
-                return view('stripe.3d-secure')->with([
-                    'clientSecret' => $clientSecret,
-                    'status' => $status,
-                ]);
-            }
-        }
-
+        return $this->makeRequest(
+            'POST',
+            "/v1/payment_intents/{$paymentIntentId}/confirm"
+        );
         
     }
 
     public function handelApproval(){
         if(session()->has('paymenIntentId')){
             $paymentIntentId = session()->get('paymenIntentId');
-            $confirmation = $this->confirmPayment($paymentIntentId);
-        
-            if($confirmation->status == 'requires_action'){
+            try{
+                $confirmation = $this->confirmPayment($paymentIntentId);
+            }catch(RequestException $e){
+                $body = $e->getResponse()->getBody()->getContents();
+                $error = $this->decodeResponse($body)->error;
+                
+              
+                $clientSecret = $error->payment_intent->client_secret;
+                $status = $error->code;
+    
+    
+                if($clientSecret && $status){
+                    return view('stripe.3d-secure')->with([
+                        'clientSecret' => $clientSecret,
+                        'status' => $status,
+                    ]);
+                }
+            }
+
+            if($confirmation->status ==='requires_action'){
                 $clientSecret = $confirmation->client_secret;
                 return view('stripe.3d-secure')->with([
+                    'status' => '3d-secure',
                     'clientSecret' => $clientSecret,
                 ]);
             }
